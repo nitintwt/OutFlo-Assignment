@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js"
 import { Campaign } from "../models/campaign.model.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
+import { createOutreachMessage } from "../services/ai.service.js"
 
 const allCampaigns = async ( req , res)=>{
   const {userId} = req.query
@@ -118,4 +119,20 @@ const deleteCampaign = async ( req , res)=>{
   }
 }
 
-export {allCampaigns , createCampaign , fetchCampaign , toggleStatus , deleteCampaign}
+const createPersonalizedMessage = async (req , res)=>{
+  const {name , jobTitle , company , location , summary} = req.body
+  try {
+    const message = await createOutreachMessage(name , jobTitle ,company , location , summary )
+    console.log("message" , message)
+    return res.status(200).json(
+      new ApiResponse(200 , message , "Personalized message created successfully")
+    )
+  } catch (error) {
+    console.error("Something went wrong while creating personalized message." , error)
+    return res.status(500).json(
+      {message: "Something went wrong while creating personalized message. Try again."}
+    )
+  }
+}
+
+export {allCampaigns , createCampaign , fetchCampaign , toggleStatus , deleteCampaign ,createPersonalizedMessage }
